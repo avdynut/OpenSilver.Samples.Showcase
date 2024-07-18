@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSHTML5.Internal;
+using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -14,17 +15,20 @@ namespace OpenSilver.Samples.Showcase
 
         public void Initialize(FrameworkElement rootElement, TimeSpan loadDelay)
         {
-            SubscribeToLayoutUpdated(rootElement, loadDelay);
+            WaitElementForLoaded(rootElement, loadDelay);
         }
 
-        private void SubscribeToLayoutUpdated(FrameworkElement element, TimeSpan loadDelay)
+        private void WaitElementForLoaded(FrameworkElement element, TimeSpan loadDelay)
         {
             var timer = new DispatcherTimer { Interval = loadDelay };
 
             timer.Tick += (s, e) =>
             {
-                // If no layout updates have occurred within the interval, the element is considered fully loaded
-                element.LayoutUpdated -= OnElementLayoutUpdated1;
+                if (!INTERNAL_VisualTreeManager.IsElementInVisualTree(element))
+                {
+                    return;
+                }
+
                 timer.Stop();
                 _fullyLoadedElementsCount++;
 
@@ -35,7 +39,7 @@ namespace OpenSilver.Samples.Showcase
                     var child = VisualTreeHelper.GetChild(element, i);
                     if (child is FrameworkElement frameworkElement)
                     {
-                        SubscribeToLayoutUpdated(frameworkElement, loadDelay);
+                        WaitElementForLoaded(frameworkElement, loadDelay);
                     }
                 }
 
@@ -47,15 +51,7 @@ namespace OpenSilver.Samples.Showcase
 
             _timersCount++;
 
-            element.LayoutUpdated += OnElementLayoutUpdated1;
             timer.Start();
-
-            void OnElementLayoutUpdated1(object sender, EventArgs e)
-            {
-                // Reset the timer whenever a layout update occurs
-                timer.Stop();
-                timer.Start();
-            }
         }
 
         private void OnTreeFullyLoaded()

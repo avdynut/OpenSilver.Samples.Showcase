@@ -28,7 +28,7 @@ namespace OpenSilver.Samples.Showcase
 
             _treeLoader = new TreeLoader();
             _treeLoader.TreeFullyLoaded += TreeLoader_TreeFullyLoaded;
-            _treeLoader.Initialize(Application.Current.MainWindow, TimeSpan.FromMilliseconds(10));
+            _treeLoader.Initialize(Application.Current.MainWindow, TimeSpan.FromMilliseconds(1));
         }
 
         private async void OnXaml_Controls_Loaded(object sender, RoutedEventArgs e)
